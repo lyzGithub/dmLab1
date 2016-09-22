@@ -14,9 +14,9 @@ public class doMain{
 
 		
 		//coreClean.readFileToBuffer();
-		coreClean.clean();
+		//coreClean.clean();
 		//coreClean.readStopWords();
-		
+		coreClean.traverseFolder1("ICML");
 		//coreClean.massyCodeClean();
 		/*
 		

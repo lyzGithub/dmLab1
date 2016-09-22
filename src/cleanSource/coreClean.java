@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 /**
  * 
  * 
@@ -34,27 +36,91 @@ import edu.stanford.nlp.util.CoreMap;
 
 public class coreClean {
 	public static int allPaper = 0;
+	public static HashMap<String,HashMap<String,Integer>> paperMap = new HashMap<String,HashMap<String,Integer>>();//one paper, one key words is value list
+	public static HashMap<String,String> allWords = new HashMap<String,String>();//all words contain
+	
     public static void clean() throws IOException {
-        /**
+       
+    }
+    public static HashMap<String,HashMap<String,Integer>> paperToMaps(String filePath){
+    	
+    	
+    	
+    	return paperMap;
+    	
+    }
+    public static void traverseFolder1(String path) throws IOException {
+		int fileNum = 0, folderNum = 0;
+		HashMap<String,String> stopWordsMap = readStopWords();
+		File file = new File(path);
+		if (file.exists()) {
+			LinkedList<File> list = new LinkedList<File>();
+			File[] files = file.listFiles();
+			for (File file2 : files) {
+				if (file2.isDirectory()) {
+					//System.out.println("文件夹:" + file2.getAbsolutePath());
+					list.add(file2);
+					folderNum++;
+				} else {
+					//System.out.println("文件:" + file2.getAbsolutePath());
+					fileNum++;
+				}
+			}
+			File temp_file;
+			while (!list.isEmpty()) {
+				temp_file = list.removeFirst();
+				files = temp_file.listFiles();
+				for (File file2 : files) {
+					if (file2.isDirectory()) {
+						//System.out.println("文件夹:" + file2.getAbsolutePath());
+						list.add(file2);
+						folderNum++;
+					} else {
+						//System.out.println("文件:" + file2.getPath());
+						fileNum++;
+						HashMap<String,Integer> paperWordsMap = new HashMap<String,Integer>();
+						readPaper(file2.getPath());
+					    paperMap.put(file.getName(), paperWordsMap);
+					}
+				}
+			}
+		} else {
+			System.out.println("文件不存在!");
+		}
+		System.out.println("文件夹共有:" + folderNum + ",文件共有:" + fileNum);
+		allPaper = fileNum;
+	}
+    public static void readPaper(String filePath) throws IOException{
+    	 /**
          * 创建一个StanfordCoreNLP object
          * tokenize(分词)、ssplit(断句)、 pos(词性标注)、lemma(词形还原)、
          * ner(命名实体识别)、parse(语法解析)、指代消解？同义词分辨？
          */
+        StringBuffer paperBuffer = readFileToBuffer(filePath);
+        String tempString = paperBuffer.toString();
+       // System.
+        System.out.println(tempString);
+      
+        
+        
+        
         
         Properties props = new Properties();    
         props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");    // 七种Annotators
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);    // 依次处理
       
-        String text = "This is         a test! This is two.";               // 输入文本
-        
+        String text = "problem 伪虅 = [伪虅(1) , . . . , 伪虅(k) ], where 伪虅(c) is the optimal";               // 输入文本
+        text = massyCodeClean(text);
+        //System.out.println(text + "dweqfwef");
         Annotation document = new Annotation(text);    // 利用text创建一个空的Annotation
         pipeline.annotate(document);                   // 对text执行所有的Annotators（七种）
         
         // 下面的sentences 中包含了所有分析结果，遍历即可获知结果。
         List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-     
+        
         HashMap<String,Integer> paperWordsMap = new HashMap<String,Integer>();
         HashMap<String,String> stopWordsMap = readStopWords();
+        
         for(CoreMap sentence: sentences) {
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
             	String lemma = token.get(LemmaAnnotation.class); //还原词性
@@ -71,42 +137,11 @@ public class coreClean {
             }
         }
         //System.out.println(paperWordsMap.toString());
+        
+         
     }
-public static  StringBuilder readFile(String filePath) throws FileNotFoundException{
-		
-		StringBuilder re = new StringBuilder();
-		File file = new File(filePath);
-		if (!file.isDirectory()) {
-		        System.out.println("文件");
-		        System.out.println("path=" + file.getPath());
-		        System.out.println("absolutepath=" + file.getAbsolutePath());
-		        System.out.println("name=" + file.getName());
-		        allPaper ++;
-
-		} else if (file.isDirectory()) {
-		        System.out.println("文件夹");
-		        String[] filelist = file.list();
-		        for (int i = 0; i < filelist.length; i++) {
-		                File readfile = new File(filePath + "\\" + filelist[i]);
-		                if (!readfile.isDirectory()) {
-		                        System.out.println("path=" + readfile.getPath());
-		                        System.out.println("absolutepath="
-		                                        + readfile.getAbsolutePath());
-		                        System.out.println("name=" + readfile.getName());
-		                        allPaper ++;
-
-		                } else if (readfile.isDirectory()) {
-		                	readFile(filePath + "\\" + filelist[i]);
-		                }
-		        }
-
-		}
-		return re;
-		
-		
-		
-	}
-    public static void massyCodeClean(String st){
+   
+    public static String massyCodeClean(String st){
     	String tt = "";
     	tt = st.toLowerCase();
     	StringBuilder bu = new StringBuilder(tt);
@@ -114,19 +149,20 @@ public static  StringBuilder readFile(String filePath) throws FileNotFoundExcept
     	for(int i = 0; i<length; i++){
     		//System.out.println(bu.charAt(i));
     		if((bu.charAt(i)>'z' || bu.charAt(i)<'a') &&  bu.charAt(i) != ' '){
-    			System.out.println(bu.charAt(i));
+    			//System.out.println(bu.charAt(i));
     			bu.deleteCharAt(i);
     			i--;
     			length --;
     		}
     	}
-    	System.out.println(bu.toString());
+    	//System.out.println(bu.toString());
+    	return bu.toString();
     	
     }
-    public static  StringBuffer readFileToBuffer() throws IOException{
+    public static  StringBuffer readFileToBuffer(String filePath) throws IOException{
     	StringBuffer inBuffer = new StringBuffer();
     	  
-        File file = new File("ICML/7. Kernel Methods/A Divide-and-Conquer Solver for Kernel Support Vector Machines.txt");
+        File file = new File(filePath);
         FileInputStream is=new FileInputStream(file);
         InputStreamReader isr= new InputStreamReader(is);
         BufferedReader in= new BufferedReader(isr);
