@@ -2,5 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="D:/code/stanford-corenlp-full-2015-12-09/stanford-corenlp-3.6.0.jar"/>
+	<classpathentry kind="lib" path="D:/code/stanford-corenlp-full-2015-12-09/stanford-corenlp-3.6.0-javadoc.jar"/>
+	<classpathentry kind="lib" path="D:/code/stanford-corenlp-full-2015-12-09/stanford-corenlp-3.6.0-models.jar"/>
+	<classpathentry kind="lib" path="D:/code/stanford-corenlp-full-2015-12-09/stanford-corenlp-3.6.0-sources.jar"/>
+	<classpathentry kind="lib" path="D:/code/stanford-corenlp-full-2015-12-09/xom.jar"/>
+	<classpathentry kind="lib" path="D:/code/stanford-corenlp-full-2015-12-09/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="D:/code/stanford-corenlp-full-2015-12-09/slf4j-simple.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
