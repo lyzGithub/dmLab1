@@ -75,6 +75,7 @@ public class vectorCom{
 		int i =0;
 		for(i = 0; i<kernerFileNameList.size(); i++ ){
 			String fileName = kernerFileNameList.get(i);
+			System.out.println(fileName);
 		}
 	}
 	
