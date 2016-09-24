@@ -15,7 +15,7 @@ public class doMain{
 		System.out.println("int the main");
 		System.setOut(new PrintStream(new FileOutputStream("output.txt")));
 		vectorCom vc = new vectorCom();
-		vc.writeVerctorToDisk();
+		
 	}
 	
 	

@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -74,35 +75,35 @@ public class vectorCom{
 			strB.append("]\n");
 			allVector.append(strB);
 		}
+		
 		System.out.println("writing result file!");
 		//写入文件
-		File file = new File("result.txt");
+		File fileR = new File("result.txt");
 		// if file doesnt exists, then create it
-		if (!file.exists()) {
-		   file.createNewFile();
+		if (!fileR.exists()) {
+			fileR.createNewFile();
 		}
-		
-		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-		bw.write(allVector.toString());
-		bw.close();
+		PrintWriter outR = new PrintWriter(fileR);
+		String strg = allVector.toString();
+		outR.print(strg);
+		outR.close();
 		System.out.println("write result file done!");
 		
 		
 		//写入单词表
 		System.out.println("building  wordslist file !");
-		StringBuilder wordsListBuilder = new StringBuilder();
-		for(Iterator itW = allWordsList.iterator();itW.hasNext();){//字典序写入数据
-			String word = (String)itW.next();
-			wordsListBuilder.append(word);
-		}
-		System.out.println("writing wordslist file!");
+		
 		File allWordsFile = new File("wordsOrdering.txt");
 		if (!allWordsFile.exists()) {
 			allWordsFile.createNewFile();
 		}
-		BufferedWriter bwAll = new BufferedWriter(new FileWriter(file));
-		bwAll.write(wordsListBuilder.toString());
-		bwAll.close();
+		PrintWriter outAW = new PrintWriter(allWordsFile);
+		
+		for(Iterator itW = allWordsList.iterator();itW.hasNext();){//字典序写入数据
+			String word = (String)itW.next();
+			outAW.print(word + " ");
+		}
+		outAW.close();
 		System.out.println("write wordslist file done!");
 	}
 	/*
@@ -174,6 +175,7 @@ public class vectorCom{
 	
 	//计算tf-idf
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void dealEachKerner7(){
 		System.out.println("in the public vectorCom() dealEachKerner7()");
 		int i =0;
@@ -199,19 +201,20 @@ public class vectorCom{
 				Map.Entry entry = (Map.Entry) iter.next();
 				Object key = entry.getKey();
 				Object val = entry.getValue();
-				tf = (int)val/fileWordsNum;
-				
+				tf = (double)(int)val/(double)fileWordsNum;
+				System.out.println("tf val:"+tf +"(int)val:" +(int)val + " fileWordsNum:" + fileWordsNum );
 				int exIn = 0;
 				Iterator iterAll = papersMap.entrySet().iterator();//遍历每一篇，查看单词存在的paper
-				while (iter.hasNext()) {
-					Map.Entry entryAll = (Map.Entry) iter.next();
-					Object valAll = entry.getValue(); 
+				while (iterAll.hasNext()) {
+					Map.Entry entryAll = (Map.Entry) iterAll.next();
+					Object valAll = entryAll.getValue(); 
 					if(((HashMap<String,Integer>)valAll).containsKey((String)key) ){
 						exIn++;
 					}
 				}
 				
-				idf = Math.log(papersAllCount/exIn+1);
+				idf = Math.log(papersAllCount/(exIn+1));
+				System.out.println("idf val:"+idf +" papersAllCount:" +papersAllCount + " exIn+1:" + (exIn+1) );
 				tfIDFMap.put((String)key, tf*idf);
 			}
 			kernerTFIDF.put(fileName, tfIDFMap);
