@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 import edu.stanford.nlp.dcoref.CorefChain;
 import edu.stanford.nlp.dcoref.CorefCoreAnnotations.CorefChainAnnotation;
@@ -41,7 +42,9 @@ public class coreClean {
 	private HashMap<String,Integer> paperWordsNumMap;
 	private List<String> allWordsList;//all words contain
 	private String filePath = "ICML";
+	
 	public coreClean() throws IOException, InterruptedException{
+		System.out.println("int the coreClean()");
 		allPaperNum = 0;
 		paperMap = new HashMap<String,HashMap<String,Integer>>();
 		paperWordsNumMap = new HashMap<String,Integer>();
@@ -54,6 +57,7 @@ public class coreClean {
 	}
 	
 	public HashMap<String,Integer> getPaperWordsForEach(){
+		System.out.println("testg:"+paperWordsNumMap.toString());
 		return paperWordsNumMap;
 	}
 	
@@ -67,6 +71,7 @@ public class coreClean {
 	}
 	
     private  void traverseFolder(String path) throws IOException, InterruptedException {
+    	System.out.println("int the coreClean() traverseFolder");
 		int fileNum = 0, folderNum = 0;
 		File file = new File(path);
 		if (file.exists()) {
@@ -92,10 +97,10 @@ public class coreClean {
 						list.add(file2);
 						folderNum++;
 					} else {
-						//System.out.println("文件:" + file2.getPath());
+						System.out.println("文件:" + file2.getPath());
 						fileNum++;
-						HashMap<String,Integer> paperWordsMap =readFileToMap(file2.getPath(),file.getName());
-					    paperMap.put(file.getName(), paperWordsMap);
+						HashMap<String,Integer> paperWordsMap =readFileToMap(file2.getPath(),file2.getName());
+					    paperMap.put(file2.getName(), paperWordsMap);
 					}
 				}
 			}
@@ -146,7 +151,8 @@ public class coreClean {
    */
     
 
-    private   HashMap<String,Integer> readFileToMap(String filePath,String fileName) throws IOException{
+    private   HashMap<String,Integer> readFileToMap(String filePath,String fileName) throws IOException, InterruptedException{
+    	System.out.println("int the coreClean() readFileToMap" + fileName);
     	int numOfWordsContain = 0;
     	
     	HashMap<String,Integer> paperWordsMap = new HashMap<String,Integer>();
@@ -156,23 +162,51 @@ public class coreClean {
         InputStreamReader isr= new InputStreamReader(is);
         BufferedReader in= new BufferedReader(isr);
     	String line = null;
-    	
+    	/*
     	Properties props = new Properties();    
 		props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");    // 七种Annotators
 		StanfordCoreNLP pipeline = new StanfordCoreNLP(props);    // 依次处理
-		
+		*/
+		long startTime=System.currentTimeMillis();
     	while(null != (line = in.readLine())){
+    		
     		line = line.toLowerCase(); 
     		line = massyCodeClean(line);
+    		StringTokenizer tokens = new StringTokenizer(line, " ");
+    	    String[] temp = new String[tokens.countTokens()];
+    	    int index = 0;
+    	    while(tokens.hasMoreTokens()){
+    	        temp[index] = tokens.nextToken();
+    	        ++index;
+    	    }
+    		for(int i =0; i< temp.length; i++){
+    			//System.out.println(temp[i]);
+    			if(temp[i] == "\\s+")
+    				continue;
+    			if( stopWordsMap.containsKey(temp[i])){
+    				continue;
+    			}
+    			numOfWordsContain++;
+    			if(false == paperWordsMap.containsKey(temp[i])){
+            		
+            		paperWordsMap.put(temp[i], 1);
+            	}
+            	else {
+            		int tempInt = paperWordsMap.get(temp[i]);
+            		paperWordsMap.put(temp[i], tempInt + 1);
+            	}
+    			if(false == allWordsList.contains(temp[i])){
+            		allWordsList.add(temp[i]);//添加到总词库
+            	}
+    		}
     		
-    		
+    		/*
     		Annotation document = new Annotation(line);    // 利用text创建一个空的Annotation
     		pipeline.annotate(document);                   // 对text执行所有的Annotators（七种）
     	  
     	        // 下面的sentences 中包含了所有分析结果，遍历即可获知结果。
     		List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-    	        
-    	   
+    	 
     		for(CoreMap sentence: sentences) {
     	            for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
     	            	String lemma = token.get(LemmaAnnotation.class); //还原词性
@@ -196,20 +230,22 @@ public class coreClean {
     	            	}
     	            }
     		}
-    		
-    		
-    		
+    		*/
     	}
+    	long endTime=System.currentTimeMillis(); 
+		System.out.println("time used for a paper: " + (endTime - startTime));
+		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		//Thread.sleep(1000);
     	in.close();
         is.close();
         paperWordsNumMap.put(fileName, numOfWordsContain);
         //System.out.println("dealed paper done:"+filePath);
        // System.out.println("paper words: "+ paperWordsMap.toString());
-       // System.out.println("all words:" + allWords.toString());
     	return paperWordsMap;
     }
     
     private  String massyCodeClean(String st){
+    	//System.out.println("int the coreClean() massyCodeClean");
     	String tt = "";
     	tt = st.toLowerCase();
     	StringBuilder bu = new StringBuilder(tt);
@@ -229,6 +265,7 @@ public class coreClean {
     }
     
     private  HashMap<String,String> readStopWords() throws IOException{
+    	//System.out.println("int the coreClean() readStopWords");
     	File file = new File("stopWords.txt");
     	FileInputStream is=new FileInputStream(file);
         InputStreamReader isr= new InputStreamReader(is);
